@@ -10,6 +10,8 @@ from apps.notes.views import NoteViewSet
 
 from apps.decks.views import DeckViewSet
 
+from apps.cards.views import CardViewSet
+
 router = DefaultRouter()
 
 router.register(
@@ -21,6 +23,11 @@ router.register(
     r"decks",
     DeckViewSet,
     basename="deck",
+)
+router.register(
+    r"cards",
+    CardViewSet,
+    basename="card",
 )
 
 urlpatterns = [

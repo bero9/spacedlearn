@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.decks',
     'apps.users',
     'apps.notes',
+    "apps.cards",
 ]
 
 MIDDLEWARE = [
