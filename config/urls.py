@@ -8,6 +8,7 @@ from apps.users.views import LoginView
 
 from apps.notes.views import NoteViewSet
 
+from apps.decks.views import DeckViewSet
 
 router = DefaultRouter()
 
@@ -16,7 +17,11 @@ router.register(
     NoteViewSet,
     basename="note",
 )
-
+router.register(
+    r"decks",
+    DeckViewSet,
+    basename="deck",
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
