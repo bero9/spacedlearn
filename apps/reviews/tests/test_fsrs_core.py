@@ -647,3 +647,19 @@ class FSRSCoreTests(SimpleTestCase):
             expected,
             places=10,
         )
+    def test_interval_matches_fsrs6_retention_formula(self):
+        core = FSRSCore()
+
+        stability = 10.0
+        retention = 0.90
+
+        interval = core.next_interval(
+            stability=stability,
+            retention=retention,
+        )
+
+        self.assertAlmostEqual(
+            interval,
+            10.0,
+            places=5,
+        )

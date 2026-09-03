@@ -334,3 +334,32 @@ class FSRSCore:
             long_term,
             short_term,
         )
+    def next_interval(
+        self,
+        *,
+        stability: float,
+        retention: float,
+    ) -> float:
+        w20 = self.parameters.weights[20]
+
+        factor = (
+            math.pow(
+                0.9,
+                -1.0 / w20,
+            )
+            - 1.0
+        )
+
+        interval = (
+            stability
+            / factor
+            * (
+                math.pow(
+                    retention,
+                    -1.0 / w20,
+                )
+                - 1.0
+            )
+        )
+
+        return interval

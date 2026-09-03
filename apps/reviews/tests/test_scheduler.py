@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from apps.reviews.models import ReviewState
+from apps.reviews.services.schedulers.core.fsrs_core import FSRSCore
 
 
 class FSRSSchedulerTests(TestCase):
@@ -270,3 +271,73 @@ class FSRSSchedulerTests(TestCase):
         self.assertGreaterEqual(result.difficulty, 0)
         self.assertGreaterEqual(result.repetitions, 0)
         self.assertGreaterEqual(result.lapses, 0)
+    def test_good_review_returns_fsrs_values(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        result = scheduler.schedule(
+            state=self.new_state,
+            rating="good",
+            now=self.now,
+        )
+
+        self.assertGreater(result.stability, 0)
+        self.assertGreater(result.difficulty, 0)
+        self.assertEqual(result.repetitions, 1)
+        self.assertEqual(result.lapses, 0)
+    def test_interval_uses_fsrs_retention_formula(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        state = {
+            "state": ReviewState.State.REVIEW,
+            "stability": 10.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "lapses": 0,
+            "due_at": self.now,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=state,
+            rating="good",
+            now=self.now,
+        )
+
+        self.assertGreater(
+            result.due_at,
+            self.now,
+        )
+
+        interval_days = (
+            result.due_at - self.now
+        ).total_seconds() / 86400
+
+        self.assertAlmostEqual(
+            interval_days,
+            10.0,
+            places=5,
+        )
+    def test_interval_matches_fsrs6_retention_formula(self):
+        core = FSRSCore()
+
+        stability = 10.0
+        retention = 0.90
+
+        interval = core.next_interval(
+            stability=stability,
+            retention=retention,
+        )
+
+        self.assertAlmostEqual(
+            interval,
+            10.0,
+            places=5,
+        )
