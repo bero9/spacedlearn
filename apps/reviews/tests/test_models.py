@@ -50,7 +50,7 @@ class ReviewStateModelTests(TestCase):
             note_type=self.note_type,
             fields={
                 "word": "persistent",
-                "meaning": "مثابر",
+                "meaning": "ظ…ط«ط§ط¨ط±",
             },
         )
 
@@ -145,7 +145,15 @@ class ReviewStateModelTests(TestCase):
 
         self.assertEqual(state_a.repetitions, 0)
         self.assertEqual(state_b.repetitions, 0)
-
+    def test_review_state_has_scheduled_days(self):
+        review_state = ReviewState.objects.create(
+            user=self.user_a,
+            card=self.card,
+        )
+        self.assertEqual(
+            review_state.scheduled_days,
+            0.0,
+        )
 class ReviewLogModelTests(TestCase):
 
     def setUp(self):
@@ -183,7 +191,7 @@ class ReviewLogModelTests(TestCase):
             note_type=self.note_type,
             fields={
                 "word": "persistent",
-                "meaning": "مثابر",
+                "meaning": "ظ…ط«ط§ط¨ط±",
             },
         )
 
@@ -328,3 +336,38 @@ class ReviewLogModelTests(TestCase):
             )
 
             self.assertEqual(log.rating, rating)
+
+    def test_review_log_has_elapsed_days(self):
+        log = ReviewLog.objects.create(
+            user=self.user,
+            card=self.card,
+            rating=ReviewLog.Rating.GOOD,
+            previous_state=ReviewState.State.NEW,
+            new_state=ReviewState.State.LEARNING,
+            elapsed_days=2.5,
+        )
+
+        self.assertEqual(
+            log.elapsed_days,
+            2.5,
+        )
+    def test_review_log_has_scheduled_days(self):
+        log = ReviewLog.objects.create(
+            user=self.user,
+            card=self.card,
+            rating=ReviewLog.Rating.GOOD,
+            previous_state=ReviewState.State.NEW,
+            new_state=ReviewState.State.LEARNING,
+            previous_scheduled_days=0.0,
+            new_scheduled_days=2.5,
+        )
+
+        self.assertEqual(
+            log.previous_scheduled_days,
+            0.0,
+        )
+
+        self.assertEqual(
+            log.new_scheduled_days,
+            2.5,
+        )

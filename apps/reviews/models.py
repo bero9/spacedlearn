@@ -42,7 +42,9 @@ class ReviewState(models.Model):
     difficulty = models.FloatField(
         default=0.0,
     )
-
+    scheduled_days = models.FloatField(
+        default=0.0,
+    )
     repetitions = models.PositiveIntegerField(
         default=0,
     )
@@ -123,5 +125,15 @@ class ReviewLog(models.Model):
     )
 
     new_difficulty = models.FloatField(
+        default=0.0,
+    )
+    elapsed_days = models.FloatField(
+        default=0.0,
+    )
+    previous_scheduled_days = models.FloatField(
+        default=0.0,
+    )
+
+    new_scheduled_days = models.FloatField(
         default=0.0,
     )

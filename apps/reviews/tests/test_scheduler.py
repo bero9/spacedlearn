@@ -66,6 +66,7 @@ class FSRSSchedulerTests(TestCase):
             "difficulty",
             "repetitions",
             "lapses",
+            "scheduled_days",
         ]
 
         for field in required_fields:

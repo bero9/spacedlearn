@@ -78,5 +78,6 @@ class FSRSScheduler(BaseScheduler):
             difficulty=new_state.difficulty,
             repetitions=new_state.repetitions,
             lapses=new_state.lapses,
+            scheduled_days=interval_days,
             elapsed_days=elapsed_days,
         )
