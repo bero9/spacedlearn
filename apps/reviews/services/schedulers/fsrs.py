@@ -8,7 +8,7 @@ from apps.reviews.services.schedulers.core.fsrs_core import (
     FSRSCore,
     FSRSState,
 )
-
+from apps.reviews.models import ReviewState
 
 class FSRSScheduler(BaseScheduler):
 
@@ -46,9 +46,33 @@ class FSRSScheduler(BaseScheduler):
         due_at = now + timedelta(
             days=interval_days,
         )
+        next_state = state["state"]
 
+        if state["state"] == ReviewState.State.NEW:
+            if rating in ("again", "hard", "good"):
+                next_state = ReviewState.State.LEARNING
+            elif rating == "easy":
+                next_state = ReviewState.State.REVIEW
+
+        elif state["state"] == ReviewState.State.LEARNING:
+            if rating in ("again", "hard"):
+                next_state = ReviewState.State.LEARNING
+            elif rating in ("good", "easy"):
+                next_state = ReviewState.State.REVIEW
+
+        elif state["state"] == ReviewState.State.REVIEW:
+            if rating == "again":
+                next_state = ReviewState.State.RELEARNING
+            elif rating in ("hard", "good", "easy"):
+                next_state = ReviewState.State.REVIEW
+
+        elif state["state"] == ReviewState.State.RELEARNING:
+            if rating in ("again", "hard"):
+                next_state = ReviewState.State.RELEARNING
+            elif rating in ("good", "easy"):
+                next_state = ReviewState.State.REVIEW
         return SchedulingResult(
-            state=state["state"],
+            state=next_state,
             due_at=due_at,
             stability=new_state.stability,
             difficulty=new_state.difficulty,

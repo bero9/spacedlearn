@@ -397,3 +397,396 @@ class FSRSSchedulerTests(TestCase):
             5.0,
             places=5,
         )
+    def test_new_card_with_good_moves_to_learning(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        result = scheduler.schedule(
+            state=self.new_state,
+            rating="good",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.LEARNING,
+        )
+    def test_new_card_with_easy_moves_to_review(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        result = scheduler.schedule(
+            state=self.new_state,
+            rating="easy",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.REVIEW,
+        )
+    def test_new_card_with_again_moves_to_learning(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        result = scheduler.schedule(
+            state=self.new_state,
+            rating="again",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.LEARNING,
+        )
+    def test_new_card_with_hard_moves_to_learning(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        result = scheduler.schedule(
+            state=self.new_state,
+            rating="hard",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.LEARNING,
+        )
+    def test_learning_with_again_stays_learning(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        learning_state = {
+            **self.new_state,
+            "state": ReviewState.State.LEARNING,
+            "stability": 2.0,
+            "difficulty": 5.0,
+            "repetitions": 1,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=learning_state,
+            rating="again",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.LEARNING,
+        )
+
+    def test_learning_with_hard_stays_learning(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        learning_state = {
+            **self.new_state,
+            "state": ReviewState.State.LEARNING,
+            "stability": 2.0,
+            "difficulty": 5.0,
+            "repetitions": 1,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=learning_state,
+            rating="hard",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.LEARNING,
+        )
+
+    def test_learning_with_good_moves_to_review(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        learning_state = {
+            **self.new_state,
+            "state": ReviewState.State.LEARNING,
+            "stability": 2.0,
+            "difficulty": 5.0,
+            "repetitions": 1,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=learning_state,
+            rating="good",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.REVIEW,
+        )
+
+    def test_learning_with_easy_moves_to_review(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        learning_state = {
+            **self.new_state,
+            "state": ReviewState.State.LEARNING,
+            "stability": 2.0,
+            "difficulty": 5.0,
+            "repetitions": 1,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=learning_state,
+            rating="easy",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.REVIEW,
+        )
+    def test_review_with_again_moves_to_relearning(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        review_state = {
+            **self.new_state,
+            "state": ReviewState.State.REVIEW,
+            "stability": 10.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=review_state,
+            rating="again",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.RELEARNING,
+        )
+
+    def test_review_with_hard_stays_review(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        review_state = {
+            **self.new_state,
+            "state": ReviewState.State.REVIEW,
+            "stability": 10.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=review_state,
+            rating="hard",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.REVIEW,
+        )
+
+    def test_review_with_good_stays_review(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        review_state = {
+            **self.new_state,
+            "state": ReviewState.State.REVIEW,
+            "stability": 10.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=review_state,
+            rating="good",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.REVIEW,
+        )
+
+    def test_review_with_easy_stays_review(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        review_state = {
+            **self.new_state,
+            "state": ReviewState.State.REVIEW,
+            "stability": 10.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=review_state,
+            rating="easy",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.REVIEW,
+        )
+    def test_relearning_with_again_stays_relearning(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        relearning_state = {
+            **self.new_state,
+            "state": ReviewState.State.RELEARNING,
+            "stability": 5.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "lapses": 1,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=relearning_state,
+            rating="again",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.RELEARNING,
+        )
+
+    def test_relearning_with_hard_stays_relearning(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        relearning_state = {
+            **self.new_state,
+            "state": ReviewState.State.RELEARNING,
+            "stability": 5.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "lapses": 1,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=relearning_state,
+            rating="hard",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.RELEARNING,
+        )
+
+    def test_relearning_with_good_moves_to_review(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        relearning_state = {
+            **self.new_state,
+            "state": ReviewState.State.RELEARNING,
+            "stability": 5.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "lapses": 1,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=relearning_state,
+            rating="good",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.REVIEW,
+        )
+
+    def test_relearning_with_easy_moves_to_review(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        scheduler = FSRSScheduler()
+
+        relearning_state = {
+            **self.new_state,
+            "state": ReviewState.State.RELEARNING,
+            "stability": 5.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "lapses": 1,
+            "last_review_at": self.now,
+        }
+
+        result = scheduler.schedule(
+            state=relearning_state,
+            rating="easy",
+            now=self.now,
+        )
+
+        self.assertEqual(
+            result.state,
+            ReviewState.State.REVIEW,
+        )
