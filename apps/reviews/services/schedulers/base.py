@@ -10,6 +10,7 @@ class SchedulingResult:
     difficulty: float
     repetitions: int
     lapses: int
+    elapsed_days: float
 
 
 class BaseScheduler:

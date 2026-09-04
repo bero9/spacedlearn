@@ -4,8 +4,6 @@ from django.test import TestCase
 from django.utils import timezone
 
 from apps.reviews.models import ReviewState
-from apps.reviews.services.schedulers.core.fsrs_core import FSRSCore
-
 
 class FSRSSchedulerTests(TestCase):
 
@@ -325,19 +323,77 @@ class FSRSSchedulerTests(TestCase):
             10.0,
             places=5,
         )
-    def test_interval_matches_fsrs6_retention_formula(self):
-        core = FSRSCore()
+    def test_elapsed_days_are_calculated_from_last_review(self):
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
 
-        stability = 10.0
-        retention = 0.90
+        scheduler = FSRSScheduler()
 
-        interval = core.next_interval(
-            stability=stability,
-            retention=retention,
+        last_review_at = self.now - timedelta(days=5)
+
+        state = {
+            "state": ReviewState.State.REVIEW,
+            "stability": 10.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "lapses": 0,
+            "due_at": self.now,
+            "last_review_at": last_review_at,
+        }
+
+        result = scheduler.schedule(
+            state=state,
+            rating="good",
+            now=self.now,
         )
 
         self.assertAlmostEqual(
-            interval,
-            10.0,
+            result.elapsed_days,
+            5.0,
+            places=5,
+        )
+    def test_scheduler_passes_elapsed_days_to_core(self):
+        from apps.reviews.services.schedulers.core.fsrs_core import (
+            FSRSCore,
+        )
+        from apps.reviews.services.schedulers.fsrs import (
+            FSRSScheduler,
+        )
+
+        class SpyFSRSCore(FSRSCore):
+
+            def review(self, *, state, rating):
+                self.received_state = state
+
+                return super().review(
+                    state=state,
+                    rating=rating,
+                )
+
+        core = SpyFSRSCore()
+        scheduler = FSRSScheduler(core=core)
+
+        last_review_at = self.now - timedelta(days=5)
+
+        state = {
+            "state": ReviewState.State.REVIEW,
+            "stability": 10.0,
+            "difficulty": 5.0,
+            "repetitions": 5,
+            "lapses": 0,
+            "due_at": self.now,
+            "last_review_at": last_review_at,
+        }
+
+        scheduler.schedule(
+            state=state,
+            rating="good",
+            now=self.now,
+        )
+
+        self.assertAlmostEqual(
+            core.received_state.elapsed_days,
+            5.0,
             places=5,
         )

@@ -16,10 +16,18 @@ class FSRSScheduler(BaseScheduler):
         self.core = core or FSRSCore()
 
     def schedule(self, *, state, rating, now):
+        last_review_at = state.get("last_review_at")
+
+        if last_review_at is None:
+            elapsed_days = 0.0
+        else:
+            elapsed_days = (
+                now - last_review_at
+            ).total_seconds() / 86400
         fsrs_state = FSRSState(
             stability=state["stability"],
             difficulty=state["difficulty"],
-            elapsed_days=state.get("elapsed_days", 0.0),
+            elapsed_days=elapsed_days,            
             scheduled_days=state.get("scheduled_days", 0.0),
             repetitions=state["repetitions"],
             lapses=state["lapses"],
@@ -29,6 +37,7 @@ class FSRSScheduler(BaseScheduler):
             state=fsrs_state,
             rating=rating,
         )
+
         interval_days = self.core.next_interval(
             stability=new_state.stability,
             retention=self.core.parameters.desired_retention,
@@ -45,4 +54,5 @@ class FSRSScheduler(BaseScheduler):
             difficulty=new_state.difficulty,
             repetitions=new_state.repetitions,
             lapses=new_state.lapses,
+            elapsed_days=elapsed_days,
         )
