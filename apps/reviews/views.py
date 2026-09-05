@@ -27,6 +27,7 @@ class ReviewAPIView(APIView):
         card = get_object_or_404(
             Card,
             id=serializer.validated_data["card_id"],
+            deck__owner=request.user,
         )
         result = ReviewService().review(
             user=request.user,
@@ -44,28 +45,4 @@ class ReviewAPIView(APIView):
                 "elapsed_days": result.elapsed_days,
             },
             status=200,
-        )
-    def test_user_cannot_review_card_owned_by_another_user(self):
-        another_user = User.objects.create_user(
-            username="another_review_user",
-            email="another_review@example.com",
-            password="password123",
-        )
-
-        self.client.force_authenticate(
-            user=another_user,
-        )
-
-        response = self.client.post(
-            "/api/reviews/",
-            {
-                "card_id": self.card.id,
-                "rating": "good",
-            },
-            format="json",
-        )
-
-        self.assertEqual(
-            response.status_code,
-            403,
         )

@@ -258,5 +258,5 @@ class ReviewAPITests(TestCase):
 
         self.assertEqual(
             response.status_code,
-            403,
+            404,
         )
