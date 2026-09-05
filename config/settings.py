@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.notes',
     "apps.cards",
     "apps.reviews",
+    "apps.study",
 ]
 
 MIDDLEWARE = [

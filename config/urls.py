@@ -50,4 +50,8 @@ urlpatterns = [
     "api/",
     include("apps.reviews.urls"),
     ),
+    path(
+    "api/",
+    include("apps.study.urls"),
+    ),
 ]
