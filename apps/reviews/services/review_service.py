@@ -2,6 +2,7 @@ from django.db import transaction
 
 from apps.reviews.models import ReviewLog, ReviewState
 from apps.reviews.services.schedulers.fsrs import FSRSScheduler
+from rest_framework.exceptions import PermissionDenied
 
 class ReviewService:
 
@@ -9,6 +10,10 @@ class ReviewService:
         self.scheduler = scheduler or FSRSScheduler()
 
     def review(self, *, user, card, rating, now):
+        if card.deck.owner != user:
+            raise PermissionDenied(
+                "You do not have permission to review this card."
+            )
         review_state = ReviewState.objects.get(
             user=user,
             card=card,

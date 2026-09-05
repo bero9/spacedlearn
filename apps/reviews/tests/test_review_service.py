@@ -7,6 +7,8 @@ from apps.notes.models import NoteType, Note
 from apps.cards.models import Card
 from apps.reviews.models import ReviewState
 from apps.reviews.services.review_service import ReviewService
+from rest_framework.exceptions import PermissionDenied
+
 
 
 class ReviewServiceTests(TestCase):
@@ -245,3 +247,19 @@ class ReviewServiceTests(TestCase):
             log.new_scheduled_days,
             0.0,
         )
+    def test_user_cannot_review_card_owned_by_another_user(self):
+        another_user = User.objects.create_user(
+            username="another_review_user",
+            email="another_review@example.com",
+            password="password123",
+        )
+
+        service = ReviewService()
+
+        with self.assertRaises(PermissionDenied):
+            service.review(
+                user=another_user,
+                card=self.card,
+                rating="good",
+                now=self.now,
+            )

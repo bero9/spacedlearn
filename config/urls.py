@@ -39,11 +39,15 @@ urlpatterns = [
     "api/auth/login/",
     LoginView.as_view(),
     name="login",
-),
+    ),
 
     path(
         "api/auth/refresh/",
         TokenRefreshView.as_view(),
         name="token_refresh",
+    ),
+    path(
+    "api/",
+    include("apps.reviews.urls"),
     ),
 ]
